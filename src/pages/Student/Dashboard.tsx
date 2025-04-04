@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { MessageCard } from "@/components/dashboard/MessageCard";
+import { ThreeDGraphic } from "@/components/dashboard/ThreeDGraphic";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -67,16 +68,19 @@ const StudentDashboard = () => {
     <DashboardLayout requiredRole="student">
       <div className="space-y-8">
         <div className="flex flex-col md:flex-row gap-6">
-          <Card className="w-full md:w-2/3 bg-card/60 backdrop-blur-sm animate-fade-in">
+          <Card className="w-full md:w-2/3 bg-gradient-to-br from-card/80 to-card/30 backdrop-blur-sm border-white/10 shadow-xl animate-fade-in">
             <CardHeader>
-              <CardTitle>Welcome to Placement Portal</CardTitle>
+              <CardTitle className="text-gradient flex items-center gap-2">Welcome to Placement Portal</CardTitle>
               <CardDescription>
                 Stay updated with latest placement opportunities and messages
               </CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-6 flex justify-center">
+                <ThreeDGraphic height="200px" className="mb-4" />
+              </div>
               <Tabs defaultValue="all">
-                <TabsList>
+                <TabsList className="bg-background/50 backdrop-blur-sm">
                   <TabsTrigger value="all">All Messages</TabsTrigger>
                   <TabsTrigger value="important">Important</TabsTrigger>
                 </TabsList>
@@ -106,21 +110,21 @@ const StudentDashboard = () => {
             </CardContent>
           </Card>
           
-          <Card className="w-full md:w-1/3 bg-card/60 backdrop-blur-sm animate-fade-in">
+          <Card className="w-full md:w-1/3 bg-gradient-to-br from-card/80 to-card/30 backdrop-blur-sm border-white/10 shadow-xl animate-fade-in">
             <CardHeader>
-              <CardTitle>Upcoming Events</CardTitle>
+              <CardTitle className="text-gradient">Upcoming Events</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {upcomingEvents.map((event, index) => (
-                  <div key={index} className="flex justify-between items-start border-b border-border pb-3 last:border-0">
+                  <div key={index} className="flex justify-between items-start border-b border-white/10 pb-3 last:border-0 hover:bg-white/5 p-2 rounded-md transition-all">
                     <div>
                       <p className="font-medium">{event.title}</p>
                       <p className="text-sm text-muted-foreground">
                         {event.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </p>
                     </div>
-                    <div className="bg-secondary px-2 py-1 rounded text-xs">
+                    <div className="bg-primary/20 text-primary border-primary border px-2 py-1 rounded text-xs">
                       {event.type}
                     </div>
                   </div>

@@ -69,4 +69,17 @@
   .glass-effect {
     @apply bg-black/30 backdrop-blur-sm border border-white/10;
   }
+  
+  .text-gradient {
+    @apply bg-gradient-to-r from-white via-white/90 to-primary/70 bg-clip-text text-transparent;
+  }
+  
+  .card-gradient {
+    @apply bg-gradient-to-br from-card/80 via-card/60 to-card/30 backdrop-blur-sm border-white/10;
+  }
+  
+  .hover-card {
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-1;
+  }
 }
+
