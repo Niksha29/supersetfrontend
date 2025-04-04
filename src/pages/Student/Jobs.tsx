@@ -61,6 +61,7 @@ const mockJobs = [
 const StudentJobs = () => {
   const [jobs, setJobs] = useState(mockJobs);
   const [appliedJobs, setAppliedJobs] = useState(mockJobs.filter(job => job.applied));
+  const [activeTab, setActiveTab] = useState("available");
   const { toast } = useToast();
   
   const handleApply = (jobId: string) => {
@@ -81,6 +82,10 @@ const StudentJobs = () => {
     }
   };
 
+  const switchToAvailableJobs = () => {
+    setActiveTab("available");
+  };
+
   return (
     <DashboardLayout requiredRole="student">
       <div className="space-y-6">
@@ -91,7 +96,7 @@ const StudentJobs = () => {
           </div>
         </div>
         
-        <Tabs defaultValue="available">
+        <Tabs defaultValue="available" value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="available">Available Jobs</TabsTrigger>
             <TabsTrigger value="applied">Applied Jobs</TabsTrigger>
@@ -138,7 +143,7 @@ const StudentJobs = () => {
             ) : (
               <div className="flex flex-col items-center justify-center py-12">
                 <p className="text-muted-foreground mb-4">You haven't applied to any jobs yet.</p>
-                <Button variant="outline" onClick={() => document.querySelector('[data-value="available"]')?.click()}>
+                <Button variant="outline" onClick={switchToAvailableJobs}>
                   Browse Available Jobs
                 </Button>
               </div>
