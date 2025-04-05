@@ -1,133 +1,129 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
-import { User } from "@/lib/api/auth";
-import api from "@/lib/api";
-import { toast } from "@/hooks/use-toast";
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+
+type UserRole = 'student' | 'admin' | null;
+
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+}
 
 interface AuthContextType {
   user: User | null;
-  isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (firstName: string, lastName: string, email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
+  userRole: UserRole;
+  login: (email: string, password: string, role: UserRole) => Promise<void>;
+  register: (userData: any, role: UserRole) => Promise<void>;
+  logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isLoading: true,
-  isAuthenticated: false,
-  login: async () => {},
-  register: async () => {},
-  logout: async () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const useAuth = () => useContext(AuthContext);
-
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const navigate = useNavigate();
-
-  // Check if user is already logged in
+  const { toast } = useToast();
+  
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-        if (token) {
-          const user = await api.auth.getCurrentUser();
-          setUser(user);
-        }
-      } catch (error) {
-        console.error("Auth check failed:", error);
-        localStorage.removeItem("authToken");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
+    // Check if user is stored in localStorage
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      setIsAuthenticated(true);
+    }
   }, []);
 
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
+  const login = async (email: string, password: string, role: UserRole) => {
     try {
-      const { user, token } = await api.auth.login({ email, password });
-      localStorage.setItem("authToken", token);
-      setUser(user);
+      // Mocked login since you mentioned you already have a backend
+      // In a real app, you would call your API here
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock user data
+      const userData = {
+        id: role === 'admin' ? 'admin-123' : 'student-456',
+        email,
+        name: role === 'admin' ? 'Admin User' : 'Student User',
+        role
+      };
+      
+      setUser(userData);
+      setIsAuthenticated(true);
+      localStorage.setItem('user', JSON.stringify(userData));
       
       toast({
-        title: "Login successful",
-        description: `Welcome back, ${user.firstName}!`,
+        title: "Logged in successfully",
+        description: `Welcome ${userData.name}`,
       });
       
-      // Redirect based on user role
-      navigate(user.role === "admin" ? "/admin/dashboard" : "/student/dashboard");
-    } catch (error: any) {
-      console.error("Login failed:", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+      // Redirect based on role
+      if (role === 'admin') {
+        navigate('/admin/dashboard');
+      } else {
+        navigate('/student/dashboard');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: "Login failed",
+        description: "Invalid credentials. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
-  const register = async (firstName: string, lastName: string, email: string, password: string) => {
-    setIsLoading(true);
+  const register = async (userData: any, role: UserRole) => {
     try {
-      const { user, token } = await api.auth.register({
-        firstName,
-        lastName,
-        email,
-        password,
-        role: "student", // Default role for registration
-      });
-      localStorage.setItem("authToken", token);
-      setUser(user);
+      // Mocked registration since you mentioned you already have a backend
+      // In a real app, you would call your API here
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast({
         title: "Registration successful",
-        description: `Welcome to the platform, ${user.firstName}!`,
+        description: "You can now log in with your credentials.",
       });
       
-      navigate("/student/dashboard");
-    } catch (error: any) {
-      console.error("Registration failed:", error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+      navigate('/login');
+    } catch (error) {
+      console.error('Registration error:', error);
+      toast({
+        title: "Registration failed",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
     }
   };
 
-  const logout = async () => {
-    setIsLoading(true);
-    try {
-      await api.auth.logout();
-      localStorage.removeItem("authToken");
-      setUser(null);
-      
-      toast({
-        title: "Logged out",
-        description: "You have been successfully logged out.",
-      });
-      
-      navigate("/login");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    } finally {
-      setIsLoading(false);
-    }
+  const logout = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem('user');
+    navigate('/login');
+    toast({
+      title: "Logged out",
+      description: "You have been logged out successfully.",
+    });
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        isLoading,
-        isAuthenticated: !!user,
+        isAuthenticated,
+        userRole: user?.role || null,
         login,
         register,
-        logout,
+        logout
       }}
     >
       {children}
@@ -135,4 +131,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
-export default AuthContext;
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
