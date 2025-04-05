@@ -2,15 +2,10 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { User } from '@/types';
+import { authApi } from '@/services/api';
 
 type UserRole = 'student' | 'admin' | null;
-
-interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: UserRole;
-}
 
 interface AuthContextType {
   user: User | null;
@@ -30,30 +25,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { toast } = useToast();
   
   useEffect(() => {
-    // Check if user is stored in localStorage
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      setIsAuthenticated(true);
-    }
+    // Check if user is already authenticated
+    const checkAuth = async () => {
+      const { data: userData } = await authApi.getCurrentUser();
+      if (userData) {
+        setUser(userData);
+        setIsAuthenticated(true);
+      }
+    };
+    
+    checkAuth();
   }, []);
 
   const login = async (email: string, password: string, role: UserRole) => {
     try {
-      // Mocked login since you mentioned you already have a backend
-      // In a real app, you would call your API here
+      const { data: userData, error } = await authApi.login(email, password, role);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock user data
-      const userData = {
-        id: role === 'admin' ? 'admin-123' : 'student-456',
-        email,
-        name: role === 'admin' ? 'Admin User' : 'Student User',
-        role
-      };
+      if (error) {
+        throw new Error(error);
+      }
       
       setUser(userData);
       setIsAuthenticated(true);
@@ -82,11 +72,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const register = async (userData: any, role: UserRole) => {
     try {
-      // Mocked registration since you mentioned you already have a backend
-      // In a real app, you would call your API here
+      const { error } = await authApi.register(userData, role);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (error) {
+        throw new Error(error);
+      }
       
       toast({
         title: "Registration successful",
@@ -104,15 +94,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('user');
-    navigate('/login');
-    toast({
-      title: "Logged out",
-      description: "You have been logged out successfully.",
-    });
+  const logout = async () => {
+    try {
+      await authApi.logout();
+      setUser(null);
+      setIsAuthenticated(false);
+      localStorage.removeItem('user');
+      navigate('/login');
+      toast({
+        title: "Logged out",
+        description: "You have been logged out successfully.",
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   return (
