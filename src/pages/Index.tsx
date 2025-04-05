@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import api from "@/lib/api";
 import { Job } from "@/lib/api/jobs";
 import { toast } from "@/hooks/use-toast";
@@ -39,8 +40,12 @@ const Index = () => {
             Welcome to our job portal. Connect with employers, apply for jobs, and track your progress throughout the hiring process.
           </p>
           <div className="mt-6 flex justify-center gap-4">
-            <Button>Sign In</Button>
-            <Button variant="outline">Register</Button>
+            <Button asChild>
+              <Link to="/login">Sign In</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/register">Register</Link>
+            </Button>
           </div>
         </div>
 
@@ -96,7 +101,9 @@ const Index = () => {
                     <p className="text-sm text-gray-700 mt-4 line-clamp-3">
                       {job.description}
                     </p>
-                    <Button className="w-full mt-4">View Details</Button>
+                    <Button asChild className="w-full mt-4">
+                      <Link to={`/jobs/${job.id}`}>View Details</Link>
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
