@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   email: string;
@@ -54,6 +53,8 @@ export interface Job {
   applied?: boolean;
   requirements?: string[];
   skills?: string[];
+  minCGPA?: number;
+  excludePlaced?: boolean;
 }
 
 export interface JobApplication {

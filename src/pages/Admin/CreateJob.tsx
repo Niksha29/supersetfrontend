@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -80,7 +79,10 @@ const AdminCreateJob = () => {
               .filter(dept => data.departments.includes(dept.id))
               .map(dept => dept.label),
         deadline: new Date(data.deadline),
-        requirements: data.requirements,
+        // Convert requirements string to an array by splitting at newlines or semicolons
+        requirements: data.requirements.split(/[\n;]+/).map(req => req.trim()).filter(req => req !== ""),
+        // You might also want to add skills if they're in the form
+        skills: [],
         minCGPA: parseFloat(data.minCGPA),
         excludePlaced: data.excludePlaced,
         applied: false
