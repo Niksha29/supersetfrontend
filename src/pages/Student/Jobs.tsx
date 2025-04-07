@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { JobCard } from "@/components/dashboard/JobCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { jobsApi } from "@/services/api";
+import { jobsApi } from "@/services";
 import { Job } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
 

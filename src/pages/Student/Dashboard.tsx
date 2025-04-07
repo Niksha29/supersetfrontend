@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { MessageCard } from "@/components/dashboard/MessageCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { messagesApi, eventsApi } from "@/services/api";
+import { messagesApi, eventsApi } from "@/services";
 import { Message, Event } from "@/types";
 
 const StudentDashboard = () => {

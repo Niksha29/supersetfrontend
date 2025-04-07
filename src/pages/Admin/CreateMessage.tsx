@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { messagesApi } from "@/services/api";
+import { messagesApi } from "@/services";
 
 // Schema for message form
 const messageSchema = z.object({
