@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { jobsApi } from "@/services";
 
 // Schema for job form
 const jobSchema = z.object({
@@ -66,10 +67,37 @@ const AdminCreateJob = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Transform the form data to match the Job type
+      const jobData = {
+        title: data.title,
+        company: data.company,
+        location: data.location,
+        salary: data.salary,
+        description: data.description,
+        departments: data.departments.includes("all") 
+          ? departments.map(dept => dept.label) 
+          : departments
+              .filter(dept => data.departments.includes(dept.id))
+              .map(dept => dept.label),
+        deadline: new Date(data.deadline),
+        requirements: data.requirements,
+        minCGPA: parseFloat(data.minCGPA),
+        excludePlaced: data.excludePlaced,
+        applied: false
+      };
       
-      console.log("Job data:", data);
+      // Call the API to create a job
+      const response = await jobsApi.createJob(jobData);
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      // If "sendEmail" is true, we can implement additional logic here
+      if (data.sendEmail) {
+        // Add logic to send email notifications about the new job
+        console.log("Sending email notifications for new job");
+      }
       
       toast({
         title: "Job Created",

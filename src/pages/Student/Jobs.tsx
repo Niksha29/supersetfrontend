@@ -62,6 +62,7 @@ const StudentJobs = () => {
   
   const handleApply = async (jobId: string) => {
     try {
+      // Make the actual API call to apply for the job
       const { data, error } = await jobsApi.applyForJob(jobId);
       
       if (error) {

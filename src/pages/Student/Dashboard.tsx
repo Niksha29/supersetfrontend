@@ -15,11 +15,19 @@ const StudentDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true);
         // Fetch messages and events in parallel
         const [messagesResponse, eventsResponse] = await Promise.all([
           messagesApi.getMessages(),
           eventsApi.getUpcomingEvents()
         ]);
+        
+        if (messagesResponse.error) {
+          throw new Error(messagesResponse.error);
+        }
+        if (eventsResponse.error) {
+          throw new Error(eventsResponse.error);
+        }
         
         setMessages(messagesResponse.data);
         setEvents(eventsResponse.data);
