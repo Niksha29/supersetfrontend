@@ -4,6 +4,31 @@ export interface User {
   email: string;
   name: string;
   role: 'student' | 'admin' | null;
+  department?: string;
+  profile?: UserProfile;
+}
+
+export interface UserProfile {
+  phone?: string;
+  address?: string;
+  skills?: string[];
+  education?: Education[];
+  experience?: Experience[];
+}
+
+export interface Education {
+  degree: string;
+  institution: string;
+  year: number;
+  grade?: string;
+}
+
+export interface Experience {
+  company: string;
+  position: string;
+  startDate: Date;
+  endDate?: Date;
+  description?: string;
 }
 
 export interface Message {
@@ -12,6 +37,8 @@ export interface Message {
   content: string;
   date: Date;
   author: string;
+  departments?: string[];
+  isPinned?: boolean;
 }
 
 export interface Job {
@@ -25,12 +52,24 @@ export interface Job {
   deadline: Date;
   description: string;
   applied?: boolean;
+  requirements?: string[];
+  skills?: string[];
+}
+
+export interface JobApplication {
+  id: string;
+  jobId: string;
+  studentId: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  appliedDate: Date;
 }
 
 export interface Event {
   title: string;
   date: Date;
   type: string;
+  location?: string;
+  description?: string;
 }
 
 export interface Interview {
@@ -40,6 +79,9 @@ export interface Interview {
   date: Date;
   status: 'scheduled' | 'completed' | 'cancelled';
   notes?: string;
+  location?: string;
+  type?: 'online' | 'in-person';
+  link?: string;
 }
 
 export interface Assessment {
@@ -48,6 +90,9 @@ export interface Assessment {
   description: string;
   deadline: Date;
   completed: boolean;
+  company?: string;
+  score?: number;
+  feedback?: string;
 }
 
 export interface ApiResponse<T> {

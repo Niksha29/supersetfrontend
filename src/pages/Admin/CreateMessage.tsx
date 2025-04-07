@@ -1,16 +1,16 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { messagesApi } from "@/services/api";
 
 // Schema for message form
 const messageSchema = z.object({
@@ -54,10 +54,25 @@ const AdminCreateMessage = () => {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Create message through API
+      const messageData = {
+        title: data.title,
+        content: data.content,
+        author: "Placement Cell", // This would come from the logged-in user
+        departments: data.departments,
+        isPinned: data.isPinned
+      };
       
-      console.log("Message data:", data);
+      const { data: result, error } = await messagesApi.createMessage(messageData);
+      
+      if (error) {
+        throw new Error(error);
+      }
+      
+      // If sendEmail is true, notify students
+      if (data.sendEmail && result.id) {
+        await messagesApi.notifyStudents(result.id);
+      }
       
       toast({
         title: "Message Created",

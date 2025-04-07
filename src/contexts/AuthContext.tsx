@@ -14,6 +14,7 @@ interface AuthContextType {
   login: (email: string, password: string, role: UserRole) => Promise<void>;
   register: (userData: any, role: UserRole) => Promise<void>;
   logout: () => void;
+  updateProfile: (profileData: any) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,8 +28,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Check if user is already authenticated
     const checkAuth = async () => {
-      const { data: userData } = await authApi.getCurrentUser();
-      if (userData) {
+      const { data: userData, error } = await authApi.getCurrentUser();
+      if (userData && !error) {
         setUser(userData);
         setIsAuthenticated(true);
       }
@@ -96,7 +97,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     try {
-      await authApi.logout();
+      const { error } = await authApi.logout();
+      
+      if (error) {
+        throw new Error(error);
+      }
+      
       setUser(null);
       setIsAuthenticated(false);
       localStorage.removeItem('user');
@@ -107,6 +113,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
     } catch (error) {
       console.error('Logout error:', error);
+      toast({
+        title: "Logout failed",
+        description: "There was an error logging out.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateProfile = async (profileData: any) => {
+    try {
+      const { data: updatedUser, error } = await authApi.updateProfile(profileData);
+      
+      if (error) {
+        throw new Error(error);
+      }
+      
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
+      });
+    } catch (error) {
+      console.error('Update profile error:', error);
+      toast({
+        title: "Update failed",
+        description: "There was an error updating your profile.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -118,7 +154,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         userRole: user?.role || null,
         login,
         register,
-        logout
+        logout,
+        updateProfile
       }}
     >
       {children}

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { JobCard } from "@/components/dashboard/JobCard";
@@ -7,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { jobsApi } from "@/services/api";
 import { Job } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
 
 const StudentJobs = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -14,25 +14,50 @@ const StudentJobs = () => {
   const [activeTab, setActiveTab] = useState("available");
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { user } = useAuth();
   
   useEffect(() => {
     const fetchJobs = async () => {
+      setLoading(true);
       try {
-        // Fetch all jobs
-        const { data } = await jobsApi.getJobs();
-        setJobs(data);
+        // Fetch all jobs - if user is available, fetch filtered jobs for student
+        let jobsResponse;
+        if (user && user.id) {
+          jobsResponse = await jobsApi.getFilteredJobs(user.id);
+        } else {
+          jobsResponse = await jobsApi.getJobs();
+        }
         
-        // Set applied jobs
-        setAppliedJobs(data.filter(job => job.applied));
+        const { data: allJobs, error } = jobsResponse;
+        
+        if (error) {
+          throw new Error(error);
+        }
+        
+        setJobs(allJobs);
+        
+        // Fetch applied jobs
+        const { data: applied, error: appliedError } = await jobsApi.getAppliedJobs();
+        
+        if (appliedError) {
+          throw new Error(appliedError);
+        }
+        
+        setAppliedJobs(applied);
       } catch (error) {
         console.error("Error fetching jobs:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load jobs. Please try again later.",
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
     };
     
     fetchJobs();
-  }, []);
+  }, [user, toast]);
   
   const handleApply = async (jobId: string) => {
     try {
@@ -75,6 +100,7 @@ const StudentJobs = () => {
     setActiveTab("available");
   };
 
+  
   return (
     <DashboardLayout requiredRole="student">
       <div className="space-y-6">
